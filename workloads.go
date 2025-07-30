@@ -47,8 +47,14 @@ func runFakeIO(ctx context.Context, sizeMB int) error {
 		return err
 	}
 	defer os.Remove(f.Name())
+
 	data := make([]byte, 1024*1024)
 	for i := 0; i < sizeMB; i++ {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
 		if _, err := rand.Read(data); err != nil {
 			return err
 		}
